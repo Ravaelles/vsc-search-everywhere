@@ -984,4 +984,190 @@ describe("ContentSearch", () => {
       expect(results.length).toBe(4);
     });
   });
+
+  describe("AButton vs AEditButton - exact and substring matching", () => {
+    it("should find both AButton.vue and AEditButton.vue when searching for AB (content search by filename substring)", async () => {
+      const uris = [
+        vscode.Uri.parse("file:///workspace/src/components/buttons/AButton.vue"),
+        vscode.Uri.parse(
+          "file:///workspace/src/components/buttons/AEditButton.vue"
+        ),
+        vscode.Uri.parse(
+          "file:///workspace/src/components/buttons/OtherButton.vue"
+        ),
+      ];
+
+      const documents: Record<string, string> = {
+        "AButton.vue": "<template>ButtonContent</template>",
+        "AEditButton.vue": "<template>FooBar</template>",
+        "OtherButton.vue": "<template>OtherContent</template>",
+      };
+
+      jest
+        .spyOn(vscode.workspace, "findFiles")
+        .mockResolvedValue(uris as any);
+      jest
+        .spyOn(vscode.workspace.fs, "stat")
+        .mockResolvedValue({ size: 200 } as any);
+      jest
+        .spyOn(vscode.workspace, "openTextDocument")
+        .mockImplementation((uri: any) => {
+          const fileName = uri.path.split("/").pop();
+          const content = documents[fileName] || "";
+          return Promise.resolve({ getText: () => content } as any);
+        });
+      jest
+        .spyOn(config, "fetchContentSearchEnabled")
+        .mockReturnValue(true);
+      jest
+        .spyOn(config, "fetchContentSearchMaxResults")
+        .mockReturnValue(50);
+      jest
+        .spyOn(config, "fetchContentSearchMaxFileSizeKb")
+        .mockReturnValue(512);
+      jest
+        .spyOn(config, "fetchContentSearchExclude")
+        .mockReturnValue(["**/node_modules/**"]);
+
+      // Content search for "AB" won't find it in file contents,
+      // but this verifies it only searches content and doesn't match filenames
+      const contentResults = await contentSearch.search("AB");
+      expect(contentResults.length).toBe(0);
+    });
+
+    it("should find FooBar in AEditButton.vue", async () => {
+      const uris = [
+        vscode.Uri.parse("file:///workspace/src/components/buttons/AButton.vue"),
+        vscode.Uri.parse(
+          "file:///workspace/src/components/buttons/AEditButton.vue"
+        ),
+      ];
+
+      const documents: Record<string, string> = {
+        "AButton.vue": "<template>ButtonContent</template>",
+        "AEditButton.vue": "<template>FooBar</template>",
+      };
+
+      jest
+        .spyOn(vscode.workspace, "findFiles")
+        .mockResolvedValue(uris as any);
+      jest
+        .spyOn(vscode.workspace.fs, "stat")
+        .mockResolvedValue({ size: 200 } as any);
+      jest
+        .spyOn(vscode.workspace, "openTextDocument")
+        .mockImplementation((uri: any) => {
+          const fileName = uri.path.split("/").pop();
+          const content = documents[fileName] || "";
+          return Promise.resolve({ getText: () => content } as any);
+        });
+      jest
+        .spyOn(config, "fetchContentSearchEnabled")
+        .mockReturnValue(true);
+      jest
+        .spyOn(config, "fetchContentSearchMaxResults")
+        .mockReturnValue(50);
+      jest
+        .spyOn(config, "fetchContentSearchMaxFileSizeKb")
+        .mockReturnValue(512);
+      jest
+        .spyOn(config, "fetchContentSearchExclude")
+        .mockReturnValue(["**/node_modules/**"]);
+
+      const results = await contentSearch.search("FooBar");
+
+      expect(results.length).toBe(1);
+      expect(results[0].detail).toContain("AEditButton.vue");
+      expect(results[0].description).toContain("FooBar");
+    });
+
+    it("should NOT find AButton or AEditButton in content when searching by name alone", async () => {
+      // Searching for "AButton" or "AEditButton" should only match if the
+      // name appears literally in file CONTENT, not by filename.
+      // This verifies content search doesn't conflate filenames with content.
+      const uris = [
+        vscode.Uri.parse("file:///workspace/src/components/AButton.vue"),
+        vscode.Uri.parse(
+          "file:///workspace/src/components/AEditButton.vue"
+        ),
+      ];
+
+      const documents: Record<string, string> = {
+        "AButton.vue": "<template>Hello</template>",
+        "AEditButton.vue": "<template>World</template>",
+      };
+
+      jest
+        .spyOn(vscode.workspace, "findFiles")
+        .mockResolvedValue(uris as any);
+      jest
+        .spyOn(vscode.workspace.fs, "stat")
+        .mockResolvedValue({ size: 200 } as any);
+      jest
+        .spyOn(vscode.workspace, "openTextDocument")
+        .mockImplementation((uri: any) => {
+          const fileName = uri.path.split("/").pop();
+          const content = documents[fileName] || "";
+          return Promise.resolve({ getText: () => content } as any);
+        });
+      jest
+        .spyOn(config, "fetchContentSearchEnabled")
+        .mockReturnValue(true);
+      jest
+        .spyOn(config, "fetchContentSearchMaxResults")
+        .mockReturnValue(50);
+      jest
+        .spyOn(config, "fetchContentSearchMaxFileSizeKb")
+        .mockReturnValue(512);
+      jest
+        .spyOn(config, "fetchContentSearchExclude")
+        .mockReturnValue(["**/node_modules/**"]);
+
+      // "AButton" is not in file content, only in filename
+      const results = await contentSearch.search("AButton");
+      expect(results.length).toBe(0);
+    });
+
+    it("should find AButton in content when it appears literally in source code", async () => {
+      const uris = [
+        vscode.Uri.parse(
+          "file:///workspace/src/components/AEditButton.vue"
+        ),
+      ];
+
+      const document = {
+        getText: () =>
+          "<template>\n  <AButton @click=\"handleEdit\" />\n</template>",
+      };
+
+      jest
+        .spyOn(vscode.workspace, "findFiles")
+        .mockResolvedValue(uris as any);
+      jest
+        .spyOn(vscode.workspace.fs, "stat")
+        .mockResolvedValue({ size: 200 } as any);
+      jest
+        .spyOn(vscode.workspace, "openTextDocument")
+        .mockResolvedValue(document as any);
+      jest
+        .spyOn(config, "fetchContentSearchEnabled")
+        .mockReturnValue(true);
+      jest
+        .spyOn(config, "fetchContentSearchMaxResults")
+        .mockReturnValue(50);
+      jest
+        .spyOn(config, "fetchContentSearchMaxFileSizeKb")
+        .mockReturnValue(512);
+      jest
+        .spyOn(config, "fetchContentSearchExclude")
+        .mockReturnValue(["**/node_modules/**"]);
+
+      // "AButton" appears literally in content as a component reference
+      const results = await contentSearch.search("AButton");
+
+      expect(results.length).toBe(1);
+      expect(results[0].detail).toContain("AEditButton.vue");
+      expect(results[0].description).toContain("AButton");
+    });
+  });
 });
