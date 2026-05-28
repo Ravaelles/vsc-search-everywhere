@@ -1,6 +1,6 @@
 {
-  "name": "vsc-search-everywhere",
-  "displayName": "VSC Search Everywhere",
+  "name": "search-anywhere",
+  "displayName": "Search Anywhere",
   "description": "Fast and customizable files, symbols, and content search engine with fuzzy filename matching. Based on vscode-search-everywhere by Kamil Bysiec.",
   "version": "1.0.0",
   "preview": false,
