@@ -12,7 +12,8 @@
     "noImplicitAny": true,
     "noImplicitThis": true,
     "esModuleInterop": false,
+    "types": ["mocha", "node"],
     "lib": ["esnext"]
   },
-  "exclude": ["node_modules", ".vscode-test"]
+  "exclude": ["node_modules", ".vscode-test", "src/test", "src/__mocks__"]
 }
