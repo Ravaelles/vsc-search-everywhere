@@ -1,0 +1,276 @@
+{
+  "name": "vsc-search-everywhere",
+  "displayName": "VSC Search Everywhere",
+  "description": "Fast and customizable files, symbols, and content search engine with fuzzy filename matching. Based on vscode-search-everywhere by Kamil Bysiec.",
+  "version": "1.0.0",
+  "preview": false,
+  "publisher": "ravaelles",
+  "author": {
+    "name": "Rafał Poniatowski",
+    "email": "ravaelles@gmail.com"
+  },
+  "contributors": [
+    {
+      "name": "Kamil Bysiec",
+      "email": "kamil.bysiec@agileplayers.com",
+      "url": "https://github.com/kbysiec"
+    }
+  ],
+  "engines": {
+    "vscode": "^1.64.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "Search",
+    "Anywhere",
+    "Go to",
+    "Browser",
+    "JetBrains",
+    "Fuzzy",
+    "Content Search"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "Search Anywhere",
+      "properties": {
+        "searchAnywhere.shouldInitOnStartup": {
+          "type": "boolean",
+          "default": false,
+          "description": "Should indexing be initialized on Visual Studio Code startup."
+        },
+        "searchAnywhere.shouldDisplayNotificationInStatusBar": {
+          "type": "boolean",
+          "default": false,
+          "description": "Should display indexing notification in toast or status bar."
+        },
+        "searchAnywhere.shouldHighlightSymbol": {
+          "type": "boolean",
+          "default": false,
+          "description": "Should the selected symbol be highlighted."
+        },
+        "searchAnywhere.shouldUseDebounce": {
+          "type": "boolean",
+          "default": true,
+          "description": "Should the debounce function be used while returning filter results (useful in case of the large workspace)."
+        },
+        "searchAnywhere.icons": {
+          "type": "object",
+          "default": {
+            "0": "symbol-file",
+            "1": "file-submodule",
+            "2": "symbol-namespace",
+            "3": "package",
+            "4": "symbol-class",
+            "5": "symbol-method",
+            "6": "symbol-property",
+            "7": "symbol-field",
+            "8": "symbol-ruler",
+            "9": "symbol-enum",
+            "10": "symbol-interface",
+            "11": "variable-group",
+            "12": "symbol-variable",
+            "13": "symbol-constant",
+            "14": "symbol-string",
+            "15": "symbol-numeric",
+            "16": "symbol-boolean",
+            "17": "symbol-array",
+            "18": "symbol-keyword",
+            "19": "symbol-key",
+            "20": "remove",
+            "21": "symbol-enum-member",
+            "22": "symbol-structure",
+            "23": "symbol-event",
+            "24": "symbol-operator",
+            "25": "type-hierarchy-sub"
+          },
+          "description": "Ability to define icons that should be displayed for appropriate item types. According to VSC API, only Octicons are allowed. Not defined item type will not have any icon."
+        },
+        "searchAnywhere.itemsFilter": {
+          "type": "object",
+          "default": {
+            "allowedKinds": [],
+            "ignoredKinds": [],
+            "ignoredNames": []
+          },
+          "description": "Ability to define a filter that should be applied to items."
+        },
+        "searchAnywhere.shouldUseItemsFilterPhrases": {
+          "type": "boolean",
+          "default": true,
+          "description": "Should be a possibility to filter by assigned filter phrases."
+        },
+        "searchAnywhere.itemsFilterPhrases": {
+          "type": "object",
+          "default": {
+            "0": "$$",
+            "4": "@@",
+            "11": "!!",
+            "14": "##",
+            "17": "%%"
+          },
+          "description": "Phrases for item type which could be used for narrowing the results down."
+        },
+        "searchAnywhere.helpPhrase": {
+          "type": "string",
+          "default": "?",
+          "description": "A phrase that should invoke help."
+        },
+        "searchAnywhere.shouldItemsBeSorted": {
+          "type": "boolean",
+          "default": true,
+          "description": "Ability to decide whether items should be sorted by type."
+        },
+        "searchAnywhere.shouldSearchSelection": {
+          "type": "boolean",
+          "default": true,
+          "description": "Ability to decide whether selection in the active editor is put in the search."
+        },
+        "searchAnywhere.exclude": {
+          "type": "array",
+          "default": [
+            "**/.git",
+            "**/.svn",
+            "**/.hg",
+            "**/.CVS",
+            "**/.DS_Store",
+            "**/package-lock.json",
+            "**/yarn.lock",
+            "**/node_modules/**",
+            "**/bower_components/**",
+            "**/coverage/**",
+            "**/.vscode/**",
+            "**/.vscode-test/**",
+            "**/.history/**",
+            "**/.cache/**",
+            "**/.cache-loader/**",
+            "**/out/**",
+            "**/dist/**"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "description": "An array of globs. Any file matching these globs will be excluded from indexing."
+        },
+        "searchAnywhere.include": {
+          "type": "string",
+          "default": "**/*",
+          "description": "String with include pattern. Any file matching this glob will be included in indexing."
+        },
+        "searchAnywhere.excludeMode": {
+          "type": "string",
+          "enum": [
+            "search anywhere",
+            "files and search",
+            "gitignore"
+          ],
+          "default": "search anywhere",
+          "description": "Ability to choose which exclude option should be applied. If gitignore file is not found or is empty, the extension option is used as a fallback. To see the changes from the updated gitignore file after indexing, the reload must be done."
+        },
+        "searchAnywhere.shouldWorkspaceDataBeCached": {
+          "type": "boolean",
+          "default": true,
+          "description": "Ability to decide if the workspace should be indexed only once. Each next startup of Visual Studio Code will collect data from cache."
+        },
+        "searchAnywhere.contentSearch.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable on-demand content search. When enabled, typing in the search box will also search file contents for matches."
+        },
+        "searchAnywhere.contentSearch.exclude": {
+          "type": "array",
+          "default": [
+            "**/node_modules/**",
+            "**/.git/**",
+            "**/dist/**",
+            "**/out/**",
+            "**/build/**",
+            "**/coverage/**",
+            "**/.cache/**",
+            "**/bower_components/**",
+            "**/package-lock.json",
+            "**/yarn.lock",
+            "**/*.min.js",
+            "**/*.min.css",
+            "**/*.map"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "description": "An array of globs. Files matching these patterns will be excluded from content search. Content search is not cached to avoid storing large data."
+        },
+        "searchAnywhere.contentSearch.maxResults": {
+          "type": "number",
+          "default": 50,
+          "description": "Maximum number of content search results to display."
+        },
+        "searchAnywhere.contentSearch.maxFileSizeKb": {
+          "type": "number",
+          "default": 512,
+          "description": "Maximum file size in KB to search content in. Files larger than this will be skipped."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "searchAnywhere.search",
+        "title": "Search Anywhere: Search"
+      },
+      {
+        "command": "searchAnywhere.reload",
+        "title": "Search Anywhere: Reload"
+      }
+    ],
+    "keybindings": {
+      "command": "searchAnywhere.search",
+      "key": "ctrl+alt+p",
+      "mac": "alt+cmd+p"
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "rimraf ./dist/ && tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "test": "node ./dist/test/runTest.js",
+    "cov:fixpaths": "gulp fixCoverageReportSrcPaths"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.11",
+    "@types/glob": "^7.1.1",
+    "@types/mocha": "^7.0.2",
+    "@types/node": "^13.9.2",
+    "@types/sinon": "^7.5.2",
+    "@types/vscode": "1.64.0",
+    "chai": "^4.2.0",
+    "decache": "^4.5.1",
+    "glob": "^7.1.6",
+    "gulp": "^4.0.2",
+    "gulp-string-replacer": "^1.2.2",
+    "istanbul": "^0.4.5",
+    "mocha": "^10.2.0",
+    "remap-istanbul": "^0.13.0",
+    "rimraf": "^3.0.2",
+    "sinon": "^9.0.1",
+    "tslint": "^6.1.0",
+    "typescript": "^4.7.4",
+    "vscode-test": "^1.3.0"
+  },
+  "dependencies": {
+    "debounce": "^1.2.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ravaelles/vsc-search-everywhere.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Ravaelles/vsc-search-everywhere/issues"
+  },
+  "icon": "img/logo.png"
+}
