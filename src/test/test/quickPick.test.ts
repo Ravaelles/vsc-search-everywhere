@@ -256,6 +256,22 @@ describe("QuickPick", () => {
 
       assert.equal(loadItemsStub.calledOnce, true);
     });
+
+    it("should perform content search when enabled and text is long enough", async () => {
+      const [loadItemsWithContentSearchStub] =
+        setups.handleDidChangeValue.setupForPerformingContentSearch();
+      await quickPick.handleDidChangeValue("FooBar");
+
+      assert.equal(loadItemsWithContentSearchStub.calledOnce, true);
+    });
+
+    it("should not perform content search when text is too short", async () => {
+      const [loadItemsStub] =
+        setups.handleDidChangeValue.setupForNotPerformingContentSearchWhenTextTooShort();
+      await quickPick.handleDidChangeValue("F");
+
+      assert.equal(loadItemsStub.calledOnce, true);
+    });
   });
 
   describe("handleDidAccept", () => {

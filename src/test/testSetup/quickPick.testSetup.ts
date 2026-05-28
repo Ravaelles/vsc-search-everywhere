@@ -558,6 +558,11 @@ export const getTestSetups = () => {
               object: quickPick,
               method: "loadItems",
             },
+            {
+              object: config,
+              method: "fetchContentSearchEnabled",
+              returns: false,
+            },
           ],
           sandbox
         );
@@ -579,6 +584,40 @@ export const getTestSetups = () => {
               object: quickPick,
               method: "getHelpPhrase",
               returns: "?",
+            },
+          ],
+          sandbox
+        );
+      },
+
+      setupForPerformingContentSearch: () => {
+        return stubMultiple(
+          [
+            {
+              object: quickPick,
+              method: "loadItemsWithContentSearch",
+            },
+            {
+              object: config,
+              method: "fetchContentSearchEnabled",
+              returns: true,
+            },
+          ],
+          sandbox
+        );
+      },
+
+      setupForNotPerformingContentSearchWhenTextTooShort: () => {
+        return stubMultiple(
+          [
+            {
+              object: quickPick,
+              method: "loadItems",
+            },
+            {
+              object: config,
+              method: "fetchContentSearchEnabled",
+              returns: true,
             },
           ],
           sandbox
