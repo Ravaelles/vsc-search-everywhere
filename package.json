@@ -32,7 +32,8 @@
     "Content Search"
   ],
   "activationEvents": [
-    "*"
+    "onCommand:searchAnywhere.search",
+    "onCommand:searchAnywhere.reload"
   ],
   "main": "./dist/extension.js",
   "contributes": {
