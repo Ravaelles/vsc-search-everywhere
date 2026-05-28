@@ -128,10 +128,19 @@ export enum QuickPickItemKind {
   Default = 0,
 }
 
-export class ThemeIcon {
+export class ThemeColor {
   id: string;
   constructor(id: string) {
     this.id = id;
+  }
+}
+
+export class ThemeIcon {
+  id: string;
+  color: ThemeColor | undefined;
+  constructor(id: string, color?: ThemeColor) {
+    this.id = id;
+    this.color = color;
   }
 }
 
@@ -222,6 +231,7 @@ export const workspace = {
 export const window = {
   createQuickPick: () => ({
     items: [] as any[],
+    buttons: [] as any[],
     value: "",
     placeholder: "",
     busy: false,
@@ -232,6 +242,7 @@ export const window = {
     onDidHide: () => new Disposable(() => {}),
     onDidChangeValue: () => new Disposable(() => {}),
     onDidTriggerItemButton: () => new Disposable(() => {}),
+    onDidTriggerButton: () => new Disposable(() => {}),
     sortByLabel: true,
   }),
 

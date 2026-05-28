@@ -197,8 +197,49 @@ function handleDidChangeValue(text: string) {
   }
 }
 
+function getFilesButton(): vscode.QuickInputButton {
+  return {
+    iconPath: new vscode.ThemeIcon(
+      "file",
+      new vscode.ThemeColor("charts.green")
+    ),
+    tooltip: "Files search (always enabled)",
+  };
+}
+
+function getContentButton(): vscode.QuickInputButton {
+  if (contentSearchToggledOn) {
+    return {
+      iconPath: new vscode.ThemeIcon(
+        "search",
+        new vscode.ThemeColor("charts.green")
+      ),
+      tooltip: "Content search (enabled) - click to disable",
+    };
+  }
+  return {
+    iconPath: new vscode.ThemeIcon("search"),
+    tooltip: "Content search (disabled) - click to enable",
+  };
+}
+
+function updateButtons(): void {
+  const control = quickPick.getControl();
+  control.buttons = [getFilesButton(), getContentButton()];
+}
+
+function handleDidTriggerButton(button: vscode.QuickInputButton): void {
+  const tooltip = button.tooltip as string;
+  if (tooltip && tooltip.includes("Content search")) {
+    contentSearchToggledOn = !contentSearchToggledOn;
+    updateButtons();
+    const control = quickPick.getControl();
+    handleDidChangeValue(control.value);
+  }
+}
+
 function shouldPerformContentSearch(text: string): boolean {
-  return fetchContentSearchEnabled() && text.length >= 2;
+  return contentSearchToggledOn && fetchContentSearchEnabled() && text.length >= 2;
 }
 
 function shouldLoadHelpItems(text: string): boolean {
@@ -235,6 +276,7 @@ function init(): void {
   quickPick.fetchConfig();
   fetchHelpData();
   toggleKeepingSeparatorsVisibleOnFiltering();
+  updateButtons();
   registerEventListeners();
 }
 
@@ -251,6 +293,7 @@ function registerEventListeners() {
   control.onDidHide(handleDidHide);
   control.onDidAccept(handleDidAccept);
   control.onDidTriggerItemButton(handleDidTriggerItemButton);
+  control.onDidTriggerButton(handleDidTriggerButton);
 
   registerOnDidChangeValueEventListeners();
 }
@@ -386,6 +429,7 @@ let shouldItemsBeSorted: boolean;
 let itemsFilterPhrases: ItemsFilterPhrases;
 let helpItems: QuickPickItem[];
 let onDidChangeValueEventListeners: vscode.Disposable[] = [];
+let contentSearchToggledOn = false;
 
 function getControl() {
   return control;
@@ -468,6 +512,14 @@ function setOnDidChangeValueEventListeners(
   onDidChangeValueEventListeners = newOnDidChangeValueEventListeners;
 }
 
+function getContentSearchToggledOn(): boolean {
+  return contentSearchToggledOn;
+}
+
+function setContentSearchToggledOn(value: boolean): void {
+  contentSearchToggledOn = value;
+}
+
 export const quickPick = {
   getControl,
   getItems,
@@ -500,4 +552,7 @@ export const quickPick = {
   handleDidHide,
   handleDidTriggerItemButton,
   disposeOnDidChangeValueEventListeners,
+  getContentSearchToggledOn,
+  setContentSearchToggledOn,
+  updateButtons,
 };

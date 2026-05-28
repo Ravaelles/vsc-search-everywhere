@@ -32,6 +32,7 @@ export const getTestSetups = () => {
 
   return {
     afterEach: () => {
+      quickPick.setContentSearchToggledOn(false);
       sandbox.restore();
     },
 
@@ -591,6 +592,7 @@ export const getTestSetups = () => {
       },
 
       setupForPerformingContentSearch: () => {
+        quickPick.setContentSearchToggledOn(true);
         return stubMultiple(
           [
             {
@@ -608,6 +610,7 @@ export const getTestSetups = () => {
       },
 
       setupForNotPerformingContentSearchWhenTextTooShort: () => {
+        quickPick.setContentSearchToggledOn(true);
         return stubMultiple(
           [
             {

@@ -2,7 +2,7 @@
   "name": "search-anywhere",
   "displayName": "Search Anywhere",
   "description": "Fast and customizable files, symbols, and content search engine with fuzzy filename matching. Based on vscode-search-everywhere by Kamil Bysiec.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "preview": false,
   "publisher": "ravaelles",
   "author": {
