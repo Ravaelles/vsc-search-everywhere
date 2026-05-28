@@ -33,7 +33,8 @@
   ],
   "activationEvents": [
     "onCommand:searchAnywhere.search",
-    "onCommand:searchAnywhere.reload"
+    "onCommand:searchAnywhere.reload",
+    "onCommand:searchAnywhere.openSettings"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -151,7 +152,8 @@
             "**/.cache/**",
             "**/.cache-loader/**",
             "**/out/**",
-            "**/dist/**"
+            "**/dist/**",
+            "**/public/build/**"
           ],
           "items": {
             "type": "string"
@@ -191,6 +193,7 @@
             "**/dist/**",
             "**/out/**",
             "**/build/**",
+            "**/public/build/**",
             "**/coverage/**",
             "**/.cache/**",
             "**/bower_components/**",
@@ -225,6 +228,10 @@
       {
         "command": "searchAnywhere.reload",
         "title": "Search Anywhere: Reload"
+      },
+      {
+        "command": "searchAnywhere.openSettings",
+        "title": "Search Anywhere: Settings"
       }
     ],
     "keybindings": {

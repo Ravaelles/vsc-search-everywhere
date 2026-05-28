@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { controller } from "./controller";
+import { settingsMenu } from "./settingsMenu";
 
 export async function search() {
   await controller.search();
@@ -7,6 +8,10 @@ export async function search() {
 
 export async function reload() {
   await controller.reload();
+}
+
+export async function openSettings() {
+  await settingsMenu.show();
 }
 
 export function deactivate() {
@@ -19,13 +24,11 @@ export async function activate(context: vscode.ExtensionContext) {
   await controller.init(context);
 
   context.subscriptions.push(
+    vscode.commands.registerCommand("searchAnywhere.search", search),
+    vscode.commands.registerCommand("searchAnywhere.reload", reload),
     vscode.commands.registerCommand(
-      "searchAnywhere.search",
-      search.bind(null, controller)
-    ),
-    vscode.commands.registerCommand(
-      "searchAnywhere.reload",
-      reload.bind(null, controller)
+      "searchAnywhere.openSettings",
+      openSettings
     )
   );
 
